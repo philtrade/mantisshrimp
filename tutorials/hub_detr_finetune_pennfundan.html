@@ -1,0 +1,857 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Fine-tune DETR &mdash; mantisshrimp  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Parser" href="parser.html" />
+    <link rel="prev" title="FAQs" href="../faqs.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> mantisshrimp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../readme_link.html">MantisShrimp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to MantisShrimp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">FAQs</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Fine-tune DETR</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Imports">Imports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#The-Data">The Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Parser">Parser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Transforms">Transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Train">Train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Plot-logs">Plot logs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wheat.html">Wheat</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">mantisshrimp</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Fine-tune DETR</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorials/hub_detr_finetune_pennfundan.nblink.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="Fine-tune-DETR">
+<h1>Fine-tune DETR<a class="headerlink" href="#Fine-tune-DETR" title="Permalink to this headline">¶</a></h1>
+<p>Check out this tutorial in <a class="reference external" href="https://colab.research.google.com/github/lgvaz/mantisshrimp/blob/master/tutorials/hub_detr_finetune_pennfundan.ipynb">colab</a> with no setup required!</p>
+<p>For this tutorial we will be working with the Penn-Fundan dataset. The same dataset used for the pytorch <a class="reference external" href="https://pytorch.org/tutorials/intermediate/torchvision_tutorial.html">maskrcnn tutorial</a>.</p>
+<div class="section" id="Dependencies">
+<h2>Dependencies<a class="headerlink" href="#Dependencies" title="Permalink to this headline">¶</a></h2>
+<p>Run the following commands for installing the dependencies if running on Google Colab(remove the <code class="docutils literal notranslate"><span class="pre">!</span></code> if running on terminal).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">!</span>pip install git+git://github.com/lgvaz/mantisshrimp.git
+<span class="o">!</span>pip install -U <span class="s1">&#39;git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI&#39;</span>
+<span class="o">!</span>pip install seaborn
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Imports">
+<h2>Imports<a class="headerlink" href="#Imports" title="Permalink to this headline">¶</a></h2>
+<p>Mantisshrimp is built in such a way that is safe to use wildcard imports, .e.g. <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">mantisshrimp</span> <span class="pre">import</span> <span class="pre">*</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">mantisshrimp.imports</span> <span class="pre">import</span> <span class="pre">*</span></code> will import commonly used packages like <code class="docutils literal notranslate"><span class="pre">np</span></code> and <code class="docutils literal notranslate"><span class="pre">plt</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">mantisshrimp</span> <span class="pre">import</span> <span class="pre">*</span></code> will import all mantis modules needed for development.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">mantisshrimp.imports</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">mantisshrimp</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="The-Data">
+<h2>The Data<a class="headerlink" href="#The-Data" title="Permalink to this headline">¶</a></h2>
+<p>In Mantisshrimp hub we have a helper function that will automatically download and extract the data for us.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">mantisshrimp.hub.pennfundan</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">source</span> <span class="o">=</span> <span class="n">get_pennfundan_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "9f4d397131f74fc2af1b70db421539dc", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+</div>
+<div class="section" id="Parser">
+<h2>Parser<a class="headerlink" href="#Parser" title="Permalink to this headline">¶</a></h2>
+<p>Also in hub, we already have a pre-defined parser for this dataset, if you want to learn more on how to create a custom parser, check the <a class="reference external" href="https://lgvaz.github.io/mantisshrimp/tutorials/parser.html">Parser tutorial</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">parser</span> <span class="o">=</span> <span class="n">PennFundanParser</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Now we use our <code class="docutils literal notranslate"><span class="pre">Parser</span></code> to, well, parse our data!</p>
+<p>Define what kind of train/validation split we want, in this case, let’s make a random split with 80% of the data in the training set and 20% on the validation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data_splitter</span> <span class="o">=</span> <span class="n">RandomSplitter</span><span class="p">([</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>And now we are ready to parse!</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">train_rs</span><span class="p">,</span> <span class="n">valid_rs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">data_splitter</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "512ff0b5bc9c41e581149969fc353313", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Transforms">
+<h2>Transforms<a class="headerlink" href="#Transforms" title="Permalink to this headline">¶</a></h2>
+<p>Everything that is required to train <code class="docutils literal notranslate"><span class="pre">Detr</span></code> is inside the <code class="docutils literal notranslate"><span class="pre">hub.detr</span></code> module, so let’s import that.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">mantisshrimp.hub.detr</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</div>
+<p>Mantisshrimp is agnostic to transforms, so we will use the exact same transforms that the authors of Detr used (it’s even from their code!).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">train_tfm</span> <span class="o">=</span> <span class="n">detr_transform</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+<span class="n">valid_tfm</span> <span class="o">=</span> <span class="n">detr_transform</span><span class="p">(</span><span class="s2">&quot;val&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We create our <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> as always, passing the records and the transforms.</p>
+<p>The only difference is that this time we’re using the specialized <code class="docutils literal notranslate"><span class="pre">DetrDataset</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">train_dataset</span> <span class="o">=</span> <span class="n">DetrDataset</span><span class="p">(</span><span class="n">train_rs</span><span class="p">,</span> <span class="n">train_tfm</span><span class="p">)</span>
+<span class="n">valid_dataset</span> <span class="o">=</span> <span class="n">DetrDataset</span><span class="p">(</span><span class="n">valid_rs</span><span class="p">,</span> <span class="n">valid_tfm</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Train">
+<h2>Train<a class="headerlink" href="#Train" title="Permalink to this headline">¶</a></h2>
+<p>Now, just a little trick for using the original script (that uses argparse, meant for command line usage).</p>
+<p>We’ll parse the arguments passing an empty string, and then assign the values we want to modify one by one.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">args_parser</span> <span class="o">=</span> <span class="n">detr_args_parser</span><span class="p">()</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">args_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">args</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">args</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">args</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">args</span><span class="o">.</span><span class="n">train_only_head</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle"><strong>Note:</strong></p>
+<p>Make sure <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> exists, else we have errors.</p>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;logs/run1&#39;</span><span class="p">)</span>
+<span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">args</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title fa fa-exclamation-circle"><strong>Important:</strong></p>
+<p>For fine-tuning, we resume from a previous checkpoint where the weights of the class head have been deleted.</p>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">args</span><span class="o">.</span><span class="n">resume</span> <span class="o">=</span> <span class="n">detr_pretrained_checkpoint_base</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Downloading: &#34;https://dl.fbaipublicfiles.com/detr/detr-r50-e632da11.pth&#34; to /root/.cache/torch/checkpoints/detr-r50-e632da11.pth
+</pre></div></div>
+</div>
+<p>The final step is to call <code class="docutils literal notranslate"><span class="pre">run_detr</span></code> with the parsed args and the datasets.</p>
+<p><code class="docutils literal notranslate"><span class="pre">run_detr</span></code> is just an alias that points to the original <code class="docutils literal notranslate"><span class="pre">main.py</span></code> script.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">run_detr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">valid_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Not using distributed mode
+git:
+  sha: N/A, status: clean, branch: N/A
+
+Namespace(aux_loss=True, backbone=&#39;resnet50&#39;, batch_size=4, bbox_loss_coef=5, clip_max_norm=0.1, coco_panoptic_path=None, coco_path=None, dataset_file=&#39;coco&#39;, dec_layers=6, device=&#39;cuda&#39;, dice_loss_coef=1, dilation=False, dim_feedforward=2048, dist_url=&#39;env://&#39;, distributed=False, dropout=0.1, enc_layers=6, eos_coef=0.1, epochs=2, eval=False, frozen_weights=None, giou_loss_coef=2, hidden_dim=256, lr=0.0001, lr_backbone=1e-05, lr_drop=200, mask_loss_coef=1, masks=False, nheads=8, num_classes=2, num_queries=100, num_workers=2, output_dir=&#39;logs/run1&#39;, position_embedding=&#39;sine&#39;, pre_norm=False, remove_difficult=False, resume=&#39;/root/.cache/torch/detr-r50_no-class-head.pth&#39;, seed=42, set_cost_bbox=5, set_cost_class=1, set_cost_giou=2, start_epoch=0, train_only_head=True, weight_decay=0.0001, world_size=1)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Downloading: &#34;https://download.pytorch.org/models/resnet50-19c8e357.pth&#34; to /root/.cache/torch/checkpoints/resnet50-19c8e357.pth
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "09ba2259202440cd8921633191716dab", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+number of params: 41279495
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "425baacd9da347c880c5423a2b4ffe8e", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+creating index...
+index created!
+Start training
+Epoch: [0]  [ 0/34]  eta: 0:00:33  lr: 0.000100  class_error: 0.00  loss: 9.8023 (9.8023)  loss_ce: 1.3289 (1.3289)  loss_bbox: 0.1444 (0.1444)  loss_giou: 0.1564 (0.1564)  loss_ce_0: 1.2595 (1.2595)  loss_bbox_0: 0.1479 (0.1479)  loss_giou_0: 0.1503 (0.1503)  loss_ce_1: 1.3334 (1.3334)  loss_bbox_1: 0.1569 (0.1569)  loss_giou_1: 0.1687 (0.1687)  loss_ce_2: 1.3434 (1.3434)  loss_bbox_2: 0.1602 (0.1602)  loss_giou_2: 0.1605 (0.1605)  loss_ce_3: 1.3434 (1.3434)  loss_bbox_3: 0.1400 (0.1400)  loss_giou_3: 0.1518 (0.1518)  loss_ce_4: 1.3576 (1.3576)  loss_bbox_4: 0.1439 (0.1439)  loss_giou_4: 0.1549 (0.1549)  loss_ce_unscaled: 1.3289 (1.3289)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0289 (0.0289)  loss_giou_unscaled: 0.0782 (0.0782)  cardinality_error_unscaled: 93.0000 (93.0000)  loss_ce_0_unscaled: 1.2595 (1.2595)  loss_bbox_0_unscaled: 0.0296 (0.0296)  loss_giou_0_unscaled: 0.0751 (0.0751)  cardinality_error_0_unscaled: 88.5000 (88.5000)  loss_ce_1_unscaled: 1.3334 (1.3334)  loss_bbox_1_unscaled: 0.0314 (0.0314)  loss_giou_1_unscaled: 0.0844 (0.0844)  cardinality_error_1_unscaled: 92.7500 (92.7500)  loss_ce_2_unscaled: 1.3434 (1.3434)  loss_bbox_2_unscaled: 0.0320 (0.0320)  loss_giou_2_unscaled: 0.0803 (0.0803)  cardinality_error_2_unscaled: 93.2500 (93.2500)  loss_ce_3_unscaled: 1.3434 (1.3434)  loss_bbox_3_unscaled: 0.0280 (0.0280)  loss_giou_3_unscaled: 0.0759 (0.0759)  cardinality_error_3_unscaled: 92.7500 (92.7500)  loss_ce_4_unscaled: 1.3576 (1.3576)  loss_bbox_4_unscaled: 0.0288 (0.0288)  loss_giou_4_unscaled: 0.0775 (0.0775)  cardinality_error_4_unscaled: 93.5000 (93.5000)  time: 0.9938  data: 0.4316  max mem: 765
+Epoch: [0]  [10/34]  eta: 0:00:09  lr: 0.000100  class_error: 0.00  loss: 10.6994 (10.7542)  loss_ce: 1.4772 (1.4495)  loss_bbox: 0.1400 (0.1583)  loss_giou: 0.1822 (0.1920)  loss_ce_0: 1.3822 (1.3629)  loss_bbox_0: 0.1673 (0.1716)  loss_giou_0: 0.2033 (0.2198)  loss_ce_1: 1.4721 (1.4414)  loss_bbox_1: 0.1475 (0.1564)  loss_giou_1: 0.1938 (0.1947)  loss_ce_2: 1.4954 (1.4510)  loss_bbox_2: 0.1494 (0.1569)  loss_giou_2: 0.1915 (0.1961)  loss_ce_3: 1.4648 (1.4383)  loss_bbox_3: 0.1405 (0.1554)  loss_giou_3: 0.1906 (0.1925)  loss_ce_4: 1.4804 (1.4658)  loss_bbox_4: 0.1415 (0.1588)  loss_giou_4: 0.1810 (0.1928)  loss_ce_unscaled: 1.4772 (1.4495)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0280 (0.0317)  loss_giou_unscaled: 0.0911 (0.0960)  cardinality_error_unscaled: 95.7500 (95.7273)  loss_ce_0_unscaled: 1.3822 (1.3629)  loss_bbox_0_unscaled: 0.0335 (0.0343)  loss_giou_0_unscaled: 0.1016 (0.1099)  cardinality_error_0_unscaled: 93.2500 (93.2955)  loss_ce_1_unscaled: 1.4721 (1.4414)  loss_bbox_1_unscaled: 0.0295 (0.0313)  loss_giou_1_unscaled: 0.0969 (0.0974)  cardinality_error_1_unscaled: 96.0000 (95.6364)  loss_ce_2_unscaled: 1.4954 (1.4510)  loss_bbox_2_unscaled: 0.0299 (0.0314)  loss_giou_2_unscaled: 0.0958 (0.0980)  cardinality_error_2_unscaled: 96.2500 (95.7045)  loss_ce_3_unscaled: 1.4648 (1.4383)  loss_bbox_3_unscaled: 0.0281 (0.0311)  loss_giou_3_unscaled: 0.0953 (0.0962)  cardinality_error_3_unscaled: 96.0000 (95.6364)  loss_ce_4_unscaled: 1.4804 (1.4658)  loss_bbox_4_unscaled: 0.0283 (0.0318)  loss_giou_4_unscaled: 0.0905 (0.0964)  cardinality_error_4_unscaled: 96.2500 (95.9091)  time: 0.4003  data: 0.0602  max mem: 1111
+Epoch: [0]  [20/34]  eta: 0:00:05  lr: 0.000100  class_error: 0.00  loss: 10.5138 (10.4765)  loss_ce: 1.3708 (1.3810)  loss_bbox: 0.1484 (0.1659)  loss_giou: 0.1996 (0.2006)  loss_ce_0: 1.2897 (1.3044)  loss_bbox_0: 0.1681 (0.1820)  loss_giou_0: 0.2115 (0.2209)  loss_ce_1: 1.3761 (1.3809)  loss_bbox_1: 0.1532 (0.1712)  loss_giou_1: 0.1946 (0.2065)  loss_ce_2: 1.3677 (1.3829)  loss_bbox_2: 0.1540 (0.1708)  loss_giou_2: 0.1931 (0.2097)  loss_ce_3: 1.3520 (1.3684)  loss_bbox_3: 0.1599 (0.1692)  loss_giou_3: 0.1940 (0.1987)  loss_ce_4: 1.3850 (1.3957)  loss_bbox_4: 0.1578 (0.1687)  loss_giou_4: 0.2020 (0.1992)  loss_ce_unscaled: 1.3708 (1.3810)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0297 (0.0332)  loss_giou_unscaled: 0.0998 (0.1003)  cardinality_error_unscaled: 95.2500 (94.5357)  loss_ce_0_unscaled: 1.2897 (1.3044)  loss_bbox_0_unscaled: 0.0336 (0.0364)  loss_giou_0_unscaled: 0.1057 (0.1104)  cardinality_error_0_unscaled: 91.5000 (91.3214)  loss_ce_1_unscaled: 1.3761 (1.3809)  loss_bbox_1_unscaled: 0.0306 (0.0342)  loss_giou_1_unscaled: 0.0973 (0.1033)  cardinality_error_1_unscaled: 94.5000 (94.2500)  loss_ce_2_unscaled: 1.3677 (1.3829)  loss_bbox_2_unscaled: 0.0308 (0.0342)  loss_giou_2_unscaled: 0.0966 (0.1048)  cardinality_error_2_unscaled: 94.5000 (94.6190)  loss_ce_3_unscaled: 1.3520 (1.3684)  loss_bbox_3_unscaled: 0.0320 (0.0338)  loss_giou_3_unscaled: 0.0970 (0.0993)  cardinality_error_3_unscaled: 95.2500 (94.4167)  loss_ce_4_unscaled: 1.3850 (1.3957)  loss_bbox_4_unscaled: 0.0316 (0.0337)  loss_giou_4_unscaled: 0.1010 (0.0996)  cardinality_error_4_unscaled: 95.5000 (94.7500)  time: 0.3295  data: 0.0242  max mem: 1201
+Epoch: [0]  [30/34]  eta: 0:00:01  lr: 0.000100  class_error: 0.00  loss: 9.5682 (10.1228)  loss_ce: 1.2500 (1.3333)  loss_bbox: 0.1603 (0.1665)  loss_giou: 0.1671 (0.1843)  loss_ce_0: 1.1919 (1.2615)  loss_bbox_0: 0.1936 (0.1895)  loss_giou_0: 0.1911 (0.2135)  loss_ce_1: 1.2470 (1.3311)  loss_bbox_1: 0.1692 (0.1727)  loss_giou_1: 0.1758 (0.1948)  loss_ce_2: 1.2567 (1.3359)  loss_bbox_2: 0.1656 (0.1718)  loss_giou_2: 0.1775 (0.1940)  loss_ce_3: 1.2325 (1.3218)  loss_bbox_3: 0.1650 (0.1704)  loss_giou_3: 0.1626 (0.1825)  loss_ce_4: 1.2644 (1.3480)  loss_bbox_4: 0.1595 (0.1683)  loss_giou_4: 0.1637 (0.1831)  loss_ce_unscaled: 1.2500 (1.3333)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0321 (0.0333)  loss_giou_unscaled: 0.0836 (0.0922)  cardinality_error_unscaled: 93.5000 (94.1210)  loss_ce_0_unscaled: 1.1919 (1.2615)  loss_bbox_0_unscaled: 0.0387 (0.0379)  loss_giou_0_unscaled: 0.0956 (0.1067)  cardinality_error_0_unscaled: 89.5000 (90.8710)  loss_ce_1_unscaled: 1.2470 (1.3311)  loss_bbox_1_unscaled: 0.0338 (0.0345)  loss_giou_1_unscaled: 0.0879 (0.0974)  cardinality_error_1_unscaled: 93.7500 (94.1532)  loss_ce_2_unscaled: 1.2567 (1.3359)  loss_bbox_2_unscaled: 0.0331 (0.0344)  loss_giou_2_unscaled: 0.0887 (0.0970)  cardinality_error_2_unscaled: 93.5000 (94.4194)  loss_ce_3_unscaled: 1.2325 (1.3218)  loss_bbox_3_unscaled: 0.0330 (0.0341)  loss_giou_3_unscaled: 0.0813 (0.0913)  cardinality_error_3_unscaled: 93.5000 (94.1371)  loss_ce_4_unscaled: 1.2644 (1.3480)  loss_bbox_4_unscaled: 0.0319 (0.0337)  loss_giou_4_unscaled: 0.0819 (0.0915)  cardinality_error_4_unscaled: 93.2500 (94.3629)  time: 0.3176  data: 0.0258  max mem: 1423
+Epoch: [0]  [33/34]  eta: 0:00:00  lr: 0.000100  class_error: 0.00  loss: 9.1420 (9.9911)  loss_ce: 1.2342 (1.3136)  loss_bbox: 0.1603 (0.1658)  loss_giou: 0.1572 (0.1825)  loss_ce_0: 1.1662 (1.2445)  loss_bbox_0: 0.1858 (0.1876)  loss_giou_0: 0.1900 (0.2107)  loss_ce_1: 1.2222 (1.3117)  loss_bbox_1: 0.1679 (0.1717)  loss_giou_1: 0.1730 (0.1923)  loss_ce_2: 1.2395 (1.3166)  loss_bbox_2: 0.1656 (0.1719)  loss_giou_2: 0.1609 (0.1918)  loss_ce_3: 1.2291 (1.3020)  loss_bbox_3: 0.1608 (0.1701)  loss_giou_3: 0.1605 (0.1820)  loss_ce_4: 1.2475 (1.3281)  loss_bbox_4: 0.1578 (0.1672)  loss_giou_4: 0.1480 (0.1809)  loss_ce_unscaled: 1.2342 (1.3136)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0321 (0.0332)  loss_giou_unscaled: 0.0786 (0.0912)  cardinality_error_unscaled: 92.5000 (93.8750)  loss_ce_0_unscaled: 1.1662 (1.2445)  loss_bbox_0_unscaled: 0.0372 (0.0375)  loss_giou_0_unscaled: 0.0950 (0.1054)  cardinality_error_0_unscaled: 88.5000 (90.5221)  loss_ce_1_unscaled: 1.2222 (1.3117)  loss_bbox_1_unscaled: 0.0336 (0.0343)  loss_giou_1_unscaled: 0.0865 (0.0962)  cardinality_error_1_unscaled: 93.2500 (93.8971)  loss_ce_2_unscaled: 1.2395 (1.3166)  loss_bbox_2_unscaled: 0.0331 (0.0344)  loss_giou_2_unscaled: 0.0804 (0.0959)  cardinality_error_2_unscaled: 93.0000 (94.0956)  loss_ce_3_unscaled: 1.2291 (1.3020)  loss_bbox_3_unscaled: 0.0322 (0.0340)  loss_giou_3_unscaled: 0.0802 (0.0910)  cardinality_error_3_unscaled: 92.2500 (93.8088)  loss_ce_4_unscaled: 1.2475 (1.3281)  loss_bbox_4_unscaled: 0.0316 (0.0334)  loss_giou_4_unscaled: 0.0740 (0.0905)  cardinality_error_4_unscaled: 92.5000 (94.0956)  time: 0.3043  data: 0.0259  max mem: 1423
+Epoch: [0] Total time: 0:00:11 (0.3384 s / it)
+Averaged stats: lr: 0.000100  class_error: 0.00  loss: 9.1420 (9.9911)  loss_ce: 1.2342 (1.3136)  loss_bbox: 0.1603 (0.1658)  loss_giou: 0.1572 (0.1825)  loss_ce_0: 1.1662 (1.2445)  loss_bbox_0: 0.1858 (0.1876)  loss_giou_0: 0.1900 (0.2107)  loss_ce_1: 1.2222 (1.3117)  loss_bbox_1: 0.1679 (0.1717)  loss_giou_1: 0.1730 (0.1923)  loss_ce_2: 1.2395 (1.3166)  loss_bbox_2: 0.1656 (0.1719)  loss_giou_2: 0.1609 (0.1918)  loss_ce_3: 1.2291 (1.3020)  loss_bbox_3: 0.1608 (0.1701)  loss_giou_3: 0.1605 (0.1820)  loss_ce_4: 1.2475 (1.3281)  loss_bbox_4: 0.1578 (0.1672)  loss_giou_4: 0.1480 (0.1809)  loss_ce_unscaled: 1.2342 (1.3136)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0321 (0.0332)  loss_giou_unscaled: 0.0786 (0.0912)  cardinality_error_unscaled: 92.5000 (93.8750)  loss_ce_0_unscaled: 1.1662 (1.2445)  loss_bbox_0_unscaled: 0.0372 (0.0375)  loss_giou_0_unscaled: 0.0950 (0.1054)  cardinality_error_0_unscaled: 88.5000 (90.5221)  loss_ce_1_unscaled: 1.2222 (1.3117)  loss_bbox_1_unscaled: 0.0336 (0.0343)  loss_giou_1_unscaled: 0.0865 (0.0962)  cardinality_error_1_unscaled: 93.2500 (93.8971)  loss_ce_2_unscaled: 1.2395 (1.3166)  loss_bbox_2_unscaled: 0.0331 (0.0344)  loss_giou_2_unscaled: 0.0804 (0.0959)  cardinality_error_2_unscaled: 93.0000 (94.0956)  loss_ce_3_unscaled: 1.2291 (1.3020)  loss_bbox_3_unscaled: 0.0322 (0.0340)  loss_giou_3_unscaled: 0.0802 (0.0910)  cardinality_error_3_unscaled: 92.2500 (93.8088)  loss_ce_4_unscaled: 1.2475 (1.3281)  loss_bbox_4_unscaled: 0.0316 (0.0334)  loss_giou_4_unscaled: 0.0740 (0.0905)  cardinality_error_4_unscaled: 92.5000 (94.0956)
+Test:  [0/9]  eta: 0:00:09  class_error: 0.00  loss: 8.2944 (8.2944)  loss_ce: 1.1051 (1.1051)  loss_bbox: 0.1224 (0.1224)  loss_giou: 0.1754 (0.1754)  loss_ce_0: 1.0357 (1.0357)  loss_bbox_0: 0.1278 (0.1278)  loss_giou_0: 0.1804 (0.1804)  loss_ce_1: 1.0944 (1.0944)  loss_bbox_1: 0.1235 (0.1235)  loss_giou_1: 0.1567 (0.1567)  loss_ce_2: 1.0955 (1.0955)  loss_bbox_2: 0.1246 (0.1246)  loss_giou_2: 0.1646 (0.1646)  loss_ce_3: 1.0885 (1.0885)  loss_bbox_3: 0.1207 (0.1207)  loss_giou_3: 0.1701 (0.1701)  loss_ce_4: 1.1136 (1.1136)  loss_bbox_4: 0.1207 (0.1207)  loss_giou_4: 0.1747 (0.1747)  loss_ce_unscaled: 1.1051 (1.1051)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0245 (0.0245)  loss_giou_unscaled: 0.0877 (0.0877)  cardinality_error_unscaled: 82.5000 (82.5000)  loss_ce_0_unscaled: 1.0357 (1.0357)  loss_bbox_0_unscaled: 0.0256 (0.0256)  loss_giou_0_unscaled: 0.0902 (0.0902)  cardinality_error_0_unscaled: 80.0000 (80.0000)  loss_ce_1_unscaled: 1.0944 (1.0944)  loss_bbox_1_unscaled: 0.0247 (0.0247)  loss_giou_1_unscaled: 0.0784 (0.0784)  cardinality_error_1_unscaled: 83.7500 (83.7500)  loss_ce_2_unscaled: 1.0955 (1.0955)  loss_bbox_2_unscaled: 0.0249 (0.0249)  loss_giou_2_unscaled: 0.0823 (0.0823)  cardinality_error_2_unscaled: 82.2500 (82.2500)  loss_ce_3_unscaled: 1.0885 (1.0885)  loss_bbox_3_unscaled: 0.0241 (0.0241)  loss_giou_3_unscaled: 0.0851 (0.0851)  cardinality_error_3_unscaled: 82.0000 (82.0000)  loss_ce_4_unscaled: 1.1136 (1.1136)  loss_bbox_4_unscaled: 0.0241 (0.0241)  loss_giou_4_unscaled: 0.0873 (0.0873)  cardinality_error_4_unscaled: 82.7500 (82.7500)  time: 1.0887  data: 0.4815  max mem: 1423
+Test:  [8/9]  eta: 0:00:00  class_error: 0.00  loss: 8.3378 (8.3594)  loss_ce: 1.1309 (1.1183)  loss_bbox: 0.1479 (0.1398)  loss_giou: 0.1509 (0.1460)  loss_ce_0: 1.0350 (1.0194)  loss_bbox_0: 0.1710 (0.1605)  loss_giou_0: 0.1779 (0.1666)  loss_ce_1: 1.1209 (1.1092)  loss_bbox_1: 0.1453 (0.1423)  loss_giou_1: 0.1459 (0.1475)  loss_ce_2: 1.1366 (1.1184)  loss_bbox_2: 0.1287 (0.1404)  loss_giou_2: 0.1498 (0.1444)  loss_ce_3: 1.1212 (1.1115)  loss_bbox_3: 0.1477 (0.1395)  loss_giou_3: 0.1500 (0.1422)  loss_ce_4: 1.1444 (1.1329)  loss_bbox_4: 0.1471 (0.1379)  loss_giou_4: 0.1517 (0.1427)  loss_ce_unscaled: 1.1309 (1.1183)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0296 (0.0280)  loss_giou_unscaled: 0.0755 (0.0730)  cardinality_error_unscaled: 87.5000 (86.6944)  loss_ce_0_unscaled: 1.0350 (1.0194)  loss_bbox_0_unscaled: 0.0342 (0.0321)  loss_giou_0_unscaled: 0.0889 (0.0833)  cardinality_error_0_unscaled: 81.5000 (79.2778)  loss_ce_1_unscaled: 1.1209 (1.1092)  loss_bbox_1_unscaled: 0.0291 (0.0285)  loss_giou_1_unscaled: 0.0729 (0.0737)  cardinality_error_1_unscaled: 88.5000 (86.7222)  loss_ce_2_unscaled: 1.1366 (1.1184)  loss_bbox_2_unscaled: 0.0257 (0.0281)  loss_giou_2_unscaled: 0.0749 (0.0722)  cardinality_error_2_unscaled: 88.0000 (86.5278)  loss_ce_3_unscaled: 1.1212 (1.1115)  loss_bbox_3_unscaled: 0.0295 (0.0279)  loss_giou_3_unscaled: 0.0750 (0.0711)  cardinality_error_3_unscaled: 86.5000 (86.4167)  loss_ce_4_unscaled: 1.1444 (1.1329)  loss_bbox_4_unscaled: 0.0294 (0.0276)  loss_giou_4_unscaled: 0.0759 (0.0714)  cardinality_error_4_unscaled: 88.0000 (87.0833)  time: 0.4203  data: 0.0773  max mem: 1445
+Test: Total time: 0:00:03 (0.4256 s / it)
+Averaged stats: class_error: 0.00  loss: 8.3378 (8.3594)  loss_ce: 1.1309 (1.1183)  loss_bbox: 0.1479 (0.1398)  loss_giou: 0.1509 (0.1460)  loss_ce_0: 1.0350 (1.0194)  loss_bbox_0: 0.1710 (0.1605)  loss_giou_0: 0.1779 (0.1666)  loss_ce_1: 1.1209 (1.1092)  loss_bbox_1: 0.1453 (0.1423)  loss_giou_1: 0.1459 (0.1475)  loss_ce_2: 1.1366 (1.1184)  loss_bbox_2: 0.1287 (0.1404)  loss_giou_2: 0.1498 (0.1444)  loss_ce_3: 1.1212 (1.1115)  loss_bbox_3: 0.1477 (0.1395)  loss_giou_3: 0.1500 (0.1422)  loss_ce_4: 1.1444 (1.1329)  loss_bbox_4: 0.1471 (0.1379)  loss_giou_4: 0.1517 (0.1427)  loss_ce_unscaled: 1.1309 (1.1183)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0296 (0.0280)  loss_giou_unscaled: 0.0755 (0.0730)  cardinality_error_unscaled: 87.5000 (86.6944)  loss_ce_0_unscaled: 1.0350 (1.0194)  loss_bbox_0_unscaled: 0.0342 (0.0321)  loss_giou_0_unscaled: 0.0889 (0.0833)  cardinality_error_0_unscaled: 81.5000 (79.2778)  loss_ce_1_unscaled: 1.1209 (1.1092)  loss_bbox_1_unscaled: 0.0291 (0.0285)  loss_giou_1_unscaled: 0.0729 (0.0737)  cardinality_error_1_unscaled: 88.5000 (86.7222)  loss_ce_2_unscaled: 1.1366 (1.1184)  loss_bbox_2_unscaled: 0.0257 (0.0281)  loss_giou_2_unscaled: 0.0749 (0.0722)  cardinality_error_2_unscaled: 88.0000 (86.5278)  loss_ce_3_unscaled: 1.1212 (1.1115)  loss_bbox_3_unscaled: 0.0295 (0.0279)  loss_giou_3_unscaled: 0.0750 (0.0711)  cardinality_error_3_unscaled: 86.5000 (86.4167)  loss_ce_4_unscaled: 1.1444 (1.1329)  loss_bbox_4_unscaled: 0.0294 (0.0276)  loss_giou_4_unscaled: 0.0759 (0.0714)  cardinality_error_4_unscaled: 88.0000 (87.0833)
+Accumulating evaluation results...
+DONE (t=0.03s).
+IoU metric: bbox
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.472
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.551
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.543
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.195
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.713
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.334
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.762
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.903
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.756
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.922
+Epoch: [1]  [ 0/34]  eta: 0:00:26  lr: 0.000100  class_error: 0.00  loss: 8.4983 (8.4983)  loss_ce: 1.0311 (1.0311)  loss_bbox: 0.1733 (0.1733)  loss_giou: 0.2026 (0.2026)  loss_ce_0: 0.9692 (0.9692)  loss_bbox_0: 0.2113 (0.2113)  loss_giou_0: 0.2367 (0.2367)  loss_ce_1: 1.0233 (1.0233)  loss_bbox_1: 0.1972 (0.1972)  loss_giou_1: 0.2134 (0.2134)  loss_ce_2: 1.0234 (1.0234)  loss_bbox_2: 0.1910 (0.1910)  loss_giou_2: 0.2142 (0.2142)  loss_ce_3: 1.0160 (1.0160)  loss_bbox_3: 0.1801 (0.1801)  loss_giou_3: 0.2059 (0.2059)  loss_ce_4: 1.0452 (1.0452)  loss_bbox_4: 0.1696 (0.1696)  loss_giou_4: 0.1947 (0.1947)  loss_ce_unscaled: 1.0311 (1.0311)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0347 (0.0347)  loss_giou_unscaled: 0.1013 (0.1013)  cardinality_error_unscaled: 89.2500 (89.2500)  loss_ce_0_unscaled: 0.9692 (0.9692)  loss_bbox_0_unscaled: 0.0423 (0.0423)  loss_giou_0_unscaled: 0.1183 (0.1183)  cardinality_error_0_unscaled: 83.0000 (83.0000)  loss_ce_1_unscaled: 1.0233 (1.0233)  loss_bbox_1_unscaled: 0.0394 (0.0394)  loss_giou_1_unscaled: 0.1067 (0.1067)  cardinality_error_1_unscaled: 87.2500 (87.2500)  loss_ce_2_unscaled: 1.0234 (1.0234)  loss_bbox_2_unscaled: 0.0382 (0.0382)  loss_giou_2_unscaled: 0.1071 (0.1071)  cardinality_error_2_unscaled: 88.7500 (88.7500)  loss_ce_3_unscaled: 1.0160 (1.0160)  loss_bbox_3_unscaled: 0.0360 (0.0360)  loss_giou_3_unscaled: 0.1030 (0.1030)  cardinality_error_3_unscaled: 86.2500 (86.2500)  loss_ce_4_unscaled: 1.0452 (1.0452)  loss_bbox_4_unscaled: 0.0339 (0.0339)  loss_giou_4_unscaled: 0.0974 (0.0974)  cardinality_error_4_unscaled: 89.0000 (89.0000)  time: 0.7878  data: 0.4018  max mem: 1445
+Epoch: [1]  [10/34]  eta: 0:00:09  lr: 0.000100  class_error: 0.00  loss: 8.7023 (8.7227)  loss_ce: 1.0517 (1.0808)  loss_bbox: 0.1684 (0.1814)  loss_giou: 0.1786 (0.1814)  loss_ce_0: 1.0489 (1.0277)  loss_bbox_0: 0.1993 (0.2112)  loss_giou_0: 0.2262 (0.2200)  loss_ce_1: 1.0824 (1.0800)  loss_bbox_1: 0.1859 (0.1930)  loss_giou_1: 0.2018 (0.1958)  loss_ce_2: 1.0727 (1.0823)  loss_bbox_2: 0.1697 (0.1880)  loss_giou_2: 0.1712 (0.1873)  loss_ce_3: 1.0514 (1.0679)  loss_bbox_3: 0.1727 (0.1857)  loss_giou_3: 0.1782 (0.1847)  loss_ce_4: 1.0624 (1.0932)  loss_bbox_4: 0.1696 (0.1813)  loss_giou_4: 0.1789 (0.1811)  loss_ce_unscaled: 1.0517 (1.0808)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0337 (0.0363)  loss_giou_unscaled: 0.0893 (0.0907)  cardinality_error_unscaled: 88.0000 (84.7955)  loss_ce_0_unscaled: 1.0489 (1.0277)  loss_bbox_0_unscaled: 0.0399 (0.0422)  loss_giou_0_unscaled: 0.1131 (0.1100)  cardinality_error_0_unscaled: 80.2500 (79.5682)  loss_ce_1_unscaled: 1.0824 (1.0800)  loss_bbox_1_unscaled: 0.0372 (0.0386)  loss_giou_1_unscaled: 0.1009 (0.0979)  cardinality_error_1_unscaled: 87.2500 (84.9545)  loss_ce_2_unscaled: 1.0727 (1.0823)  loss_bbox_2_unscaled: 0.0339 (0.0376)  loss_giou_2_unscaled: 0.0856 (0.0936)  cardinality_error_2_unscaled: 86.7500 (85.3636)  loss_ce_3_unscaled: 1.0514 (1.0679)  loss_bbox_3_unscaled: 0.0345 (0.0371)  loss_giou_3_unscaled: 0.0891 (0.0924)  cardinality_error_3_unscaled: 86.2500 (84.2727)  loss_ce_4_unscaled: 1.0624 (1.0932)  loss_bbox_4_unscaled: 0.0339 (0.0363)  loss_giou_4_unscaled: 0.0894 (0.0905)  cardinality_error_4_unscaled: 87.5000 (84.7955)  time: 0.3920  data: 0.0656  max mem: 1445
+Epoch: [1]  [20/34]  eta: 0:00:05  lr: 0.000100  class_error: 0.00  loss: 8.1645 (8.3954)  loss_ce: 1.0122 (1.0305)  loss_bbox: 0.1542 (0.1725)  loss_giou: 0.1786 (0.1854)  loss_ce_0: 0.9806 (0.9835)  loss_bbox_0: 0.1993 (0.2042)  loss_giou_0: 0.2226 (0.2241)  loss_ce_1: 1.0176 (1.0323)  loss_bbox_1: 0.1766 (0.1845)  loss_giou_1: 0.2018 (0.2004)  loss_ce_2: 1.0150 (1.0328)  loss_bbox_2: 0.1647 (0.1766)  loss_giou_2: 0.1674 (0.1889)  loss_ce_3: 1.0042 (1.0191)  loss_bbox_3: 0.1624 (0.1758)  loss_giou_3: 0.1739 (0.1860)  loss_ce_4: 1.0279 (1.0423)  loss_bbox_4: 0.1535 (0.1710)  loss_giou_4: 0.1789 (0.1856)  loss_ce_unscaled: 1.0122 (1.0305)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0308 (0.0345)  loss_giou_unscaled: 0.0893 (0.0927)  cardinality_error_unscaled: 79.7500 (81.1905)  loss_ce_0_unscaled: 0.9806 (0.9835)  loss_bbox_0_unscaled: 0.0399 (0.0408)  loss_giou_0_unscaled: 0.1113 (0.1121)  cardinality_error_0_unscaled: 74.7500 (75.7857)  loss_ce_1_unscaled: 1.0176 (1.0323)  loss_bbox_1_unscaled: 0.0353 (0.0369)  loss_giou_1_unscaled: 0.1009 (0.1002)  cardinality_error_1_unscaled: 80.5000 (81.5714)  loss_ce_2_unscaled: 1.0150 (1.0328)  loss_bbox_2_unscaled: 0.0329 (0.0353)  loss_giou_2_unscaled: 0.0837 (0.0945)  cardinality_error_2_unscaled: 84.2500 (81.8333)  loss_ce_3_unscaled: 1.0042 (1.0191)  loss_bbox_3_unscaled: 0.0325 (0.0352)  loss_giou_3_unscaled: 0.0870 (0.0930)  cardinality_error_3_unscaled: 82.2500 (80.5952)  loss_ce_4_unscaled: 1.0279 (1.0423)  loss_bbox_4_unscaled: 0.0307 (0.0342)  loss_giou_4_unscaled: 0.0894 (0.0928)  cardinality_error_4_unscaled: 80.2500 (81.4286)  time: 0.3473  data: 0.0288  max mem: 1445
+Epoch: [1]  [30/34]  eta: 0:00:01  lr: 0.000100  class_error: 0.00  loss: 7.4808 (8.0295)  loss_ce: 0.9238 (0.9850)  loss_bbox: 0.1467 (0.1625)  loss_giou: 0.1563 (0.1792)  loss_ce_0: 0.8885 (0.9394)  loss_bbox_0: 0.1727 (0.1955)  loss_giou_0: 0.2073 (0.2187)  loss_ce_1: 0.9278 (0.9852)  loss_bbox_1: 0.1533 (0.1726)  loss_giou_1: 0.1801 (0.1921)  loss_ce_2: 0.9295 (0.9871)  loss_bbox_2: 0.1536 (0.1669)  loss_giou_2: 0.1604 (0.1818)  loss_ce_3: 0.9094 (0.9737)  loss_bbox_3: 0.1473 (0.1671)  loss_giou_3: 0.1565 (0.1832)  loss_ce_4: 0.9326 (0.9963)  loss_bbox_4: 0.1500 (0.1617)  loss_giou_4: 0.1673 (0.1815)  loss_ce_unscaled: 0.9238 (0.9850)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0293 (0.0325)  loss_giou_unscaled: 0.0781 (0.0896)  cardinality_error_unscaled: 68.7500 (76.3226)  loss_ce_0_unscaled: 0.8885 (0.9394)  loss_bbox_0_unscaled: 0.0345 (0.0391)  loss_giou_0_unscaled: 0.1036 (0.1093)  cardinality_error_0_unscaled: 66.2500 (70.4032)  loss_ce_1_unscaled: 0.9278 (0.9852)  loss_bbox_1_unscaled: 0.0307 (0.0345)  loss_giou_1_unscaled: 0.0900 (0.0960)  cardinality_error_1_unscaled: 70.7500 (76.2903)  loss_ce_2_unscaled: 0.9295 (0.9871)  loss_bbox_2_unscaled: 0.0307 (0.0334)  loss_giou_2_unscaled: 0.0802 (0.0909)  cardinality_error_2_unscaled: 71.5000 (77.0000)  loss_ce_3_unscaled: 0.9094 (0.9737)  loss_bbox_3_unscaled: 0.0295 (0.0334)  loss_giou_3_unscaled: 0.0783 (0.0916)  cardinality_error_3_unscaled: 68.7500 (75.5968)  loss_ce_4_unscaled: 0.9326 (0.9963)  loss_bbox_4_unscaled: 0.0300 (0.0323)  loss_giou_4_unscaled: 0.0837 (0.0908)  cardinality_error_4_unscaled: 70.0000 (76.7823)  time: 0.3398  data: 0.0263  max mem: 1445
+Epoch: [1]  [33/34]  eta: 0:00:00  lr: 0.000100  class_error: 0.00  loss: 7.3166 (7.9513)  loss_ce: 0.8958 (0.9722)  loss_bbox: 0.1447 (0.1617)  loss_giou: 0.1563 (0.1783)  loss_ce_0: 0.8857 (0.9289)  loss_bbox_0: 0.1727 (0.1948)  loss_giou_0: 0.2031 (0.2167)  loss_ce_1: 0.9112 (0.9732)  loss_bbox_1: 0.1533 (0.1719)  loss_giou_1: 0.1734 (0.1909)  loss_ce_2: 0.9113 (0.9740)  loss_bbox_2: 0.1501 (0.1681)  loss_giou_2: 0.1775 (0.1826)  loss_ce_3: 0.8928 (0.9603)  loss_bbox_3: 0.1473 (0.1677)  loss_giou_3: 0.1739 (0.1834)  loss_ce_4: 0.9131 (0.9833)  loss_bbox_4: 0.1455 (0.1618)  loss_giou_4: 0.1668 (0.1815)  loss_ce_unscaled: 0.8958 (0.9722)  class_error_unscaled: 0.0000 (0.2941)  loss_bbox_unscaled: 0.0289 (0.0323)  loss_giou_unscaled: 0.0781 (0.0892)  cardinality_error_unscaled: 68.5000 (75.4044)  loss_ce_0_unscaled: 0.8857 (0.9289)  loss_bbox_0_unscaled: 0.0345 (0.0390)  loss_giou_0_unscaled: 0.1015 (0.1083)  cardinality_error_0_unscaled: 63.5000 (69.3088)  loss_ce_1_unscaled: 0.9112 (0.9732)  loss_bbox_1_unscaled: 0.0307 (0.0344)  loss_giou_1_unscaled: 0.0867 (0.0955)  cardinality_error_1_unscaled: 68.7500 (75.1985)  loss_ce_2_unscaled: 0.9113 (0.9740)  loss_bbox_2_unscaled: 0.0300 (0.0336)  loss_giou_2_unscaled: 0.0887 (0.0913)  cardinality_error_2_unscaled: 70.0000 (76.0147)  loss_ce_3_unscaled: 0.8928 (0.9603)  loss_bbox_3_unscaled: 0.0295 (0.0335)  loss_giou_3_unscaled: 0.0870 (0.0917)  cardinality_error_3_unscaled: 68.2500 (74.5221)  loss_ce_4_unscaled: 0.9131 (0.9833)  loss_bbox_4_unscaled: 0.0291 (0.0324)  loss_giou_4_unscaled: 0.0834 (0.0908)  cardinality_error_4_unscaled: 69.7500 (75.8162)  time: 0.3268  data: 0.0266  max mem: 1445
+Epoch: [1] Total time: 0:00:11 (0.3507 s / it)
+Averaged stats: lr: 0.000100  class_error: 0.00  loss: 7.3166 (7.9513)  loss_ce: 0.8958 (0.9722)  loss_bbox: 0.1447 (0.1617)  loss_giou: 0.1563 (0.1783)  loss_ce_0: 0.8857 (0.9289)  loss_bbox_0: 0.1727 (0.1948)  loss_giou_0: 0.2031 (0.2167)  loss_ce_1: 0.9112 (0.9732)  loss_bbox_1: 0.1533 (0.1719)  loss_giou_1: 0.1734 (0.1909)  loss_ce_2: 0.9113 (0.9740)  loss_bbox_2: 0.1501 (0.1681)  loss_giou_2: 0.1775 (0.1826)  loss_ce_3: 0.8928 (0.9603)  loss_bbox_3: 0.1473 (0.1677)  loss_giou_3: 0.1739 (0.1834)  loss_ce_4: 0.9131 (0.9833)  loss_bbox_4: 0.1455 (0.1618)  loss_giou_4: 0.1668 (0.1815)  loss_ce_unscaled: 0.8958 (0.9722)  class_error_unscaled: 0.0000 (0.2941)  loss_bbox_unscaled: 0.0289 (0.0323)  loss_giou_unscaled: 0.0781 (0.0892)  cardinality_error_unscaled: 68.5000 (75.4044)  loss_ce_0_unscaled: 0.8857 (0.9289)  loss_bbox_0_unscaled: 0.0345 (0.0390)  loss_giou_0_unscaled: 0.1015 (0.1083)  cardinality_error_0_unscaled: 63.5000 (69.3088)  loss_ce_1_unscaled: 0.9112 (0.9732)  loss_bbox_1_unscaled: 0.0307 (0.0344)  loss_giou_1_unscaled: 0.0867 (0.0955)  cardinality_error_1_unscaled: 68.7500 (75.1985)  loss_ce_2_unscaled: 0.9113 (0.9740)  loss_bbox_2_unscaled: 0.0300 (0.0336)  loss_giou_2_unscaled: 0.0887 (0.0913)  cardinality_error_2_unscaled: 70.0000 (76.0147)  loss_ce_3_unscaled: 0.8928 (0.9603)  loss_bbox_3_unscaled: 0.0295 (0.0335)  loss_giou_3_unscaled: 0.0870 (0.0917)  cardinality_error_3_unscaled: 68.2500 (74.5221)  loss_ce_4_unscaled: 0.9131 (0.9833)  loss_bbox_4_unscaled: 0.0291 (0.0324)  loss_giou_4_unscaled: 0.0834 (0.0908)  cardinality_error_4_unscaled: 69.7500 (75.8162)
+Test:  [0/9]  eta: 0:00:09  class_error: 0.00  loss: 6.4377 (6.4377)  loss_ce: 0.7900 (0.7900)  loss_bbox: 0.1224 (0.1224)  loss_giou: 0.1754 (0.1754)  loss_ce_0: 0.7506 (0.7506)  loss_bbox_0: 0.1278 (0.1278)  loss_giou_0: 0.1804 (0.1804)  loss_ce_1: 0.7823 (0.7823)  loss_bbox_1: 0.1235 (0.1235)  loss_giou_1: 0.1567 (0.1567)  loss_ce_2: 0.7814 (0.7814)  loss_bbox_2: 0.1246 (0.1246)  loss_giou_2: 0.1646 (0.1646)  loss_ce_3: 0.7747 (0.7747)  loss_bbox_3: 0.1207 (0.1207)  loss_giou_3: 0.1701 (0.1701)  loss_ce_4: 0.7971 (0.7971)  loss_bbox_4: 0.1207 (0.1207)  loss_giou_4: 0.1747 (0.1747)  loss_ce_unscaled: 0.7900 (0.7900)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0245 (0.0245)  loss_giou_unscaled: 0.0877 (0.0877)  cardinality_error_unscaled: 55.5000 (55.5000)  loss_ce_0_unscaled: 0.7506 (0.7506)  loss_bbox_0_unscaled: 0.0256 (0.0256)  loss_giou_0_unscaled: 0.0902 (0.0902)  cardinality_error_0_unscaled: 46.7500 (46.7500)  loss_ce_1_unscaled: 0.7823 (0.7823)  loss_bbox_1_unscaled: 0.0247 (0.0247)  loss_giou_1_unscaled: 0.0784 (0.0784)  cardinality_error_1_unscaled: 53.7500 (53.7500)  loss_ce_2_unscaled: 0.7814 (0.7814)  loss_bbox_2_unscaled: 0.0249 (0.0249)  loss_giou_2_unscaled: 0.0823 (0.0823)  cardinality_error_2_unscaled: 54.7500 (54.7500)  loss_ce_3_unscaled: 0.7747 (0.7747)  loss_bbox_3_unscaled: 0.0241 (0.0241)  loss_giou_3_unscaled: 0.0851 (0.0851)  cardinality_error_3_unscaled: 54.0000 (54.0000)  loss_ce_4_unscaled: 0.7971 (0.7971)  loss_bbox_4_unscaled: 0.0241 (0.0241)  loss_giou_4_unscaled: 0.0873 (0.0873)  cardinality_error_4_unscaled: 56.5000 (56.5000)  time: 1.0183  data: 0.4751  max mem: 1445
+Test:  [8/9]  eta: 0:00:00  class_error: 0.00  loss: 6.4795 (6.5037)  loss_ce: 0.8051 (0.8034)  loss_bbox: 0.1479 (0.1398)  loss_giou: 0.1509 (0.1460)  loss_ce_0: 0.7483 (0.7361)  loss_bbox_0: 0.1710 (0.1604)  loss_giou_0: 0.1779 (0.1684)  loss_ce_1: 0.8124 (0.7956)  loss_bbox_1: 0.1453 (0.1439)  loss_giou_1: 0.1517 (0.1484)  loss_ce_2: 0.8113 (0.8040)  loss_bbox_2: 0.1287 (0.1404)  loss_giou_2: 0.1498 (0.1444)  loss_ce_3: 0.7977 (0.7964)  loss_bbox_3: 0.1477 (0.1395)  loss_giou_3: 0.1500 (0.1422)  loss_ce_4: 0.8160 (0.8143)  loss_bbox_4: 0.1471 (0.1379)  loss_giou_4: 0.1517 (0.1427)  loss_ce_unscaled: 0.8051 (0.8034)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0296 (0.0280)  loss_giou_unscaled: 0.0755 (0.0730)  cardinality_error_unscaled: 56.7500 (55.1389)  loss_ce_0_unscaled: 0.7483 (0.7361)  loss_bbox_0_unscaled: 0.0342 (0.0321)  loss_giou_0_unscaled: 0.0889 (0.0842)  cardinality_error_0_unscaled: 46.7500 (47.5000)  loss_ce_1_unscaled: 0.8124 (0.7956)  loss_bbox_1_unscaled: 0.0291 (0.0288)  loss_giou_1_unscaled: 0.0758 (0.0742)  cardinality_error_1_unscaled: 53.7500 (55.0556)  loss_ce_2_unscaled: 0.8113 (0.8040)  loss_bbox_2_unscaled: 0.0257 (0.0281)  loss_giou_2_unscaled: 0.0749 (0.0722)  cardinality_error_2_unscaled: 56.5000 (56.2500)  loss_ce_3_unscaled: 0.7977 (0.7964)  loss_bbox_3_unscaled: 0.0295 (0.0279)  loss_giou_3_unscaled: 0.0750 (0.0711)  cardinality_error_3_unscaled: 56.7500 (55.2500)  loss_ce_4_unscaled: 0.8160 (0.8143)  loss_bbox_4_unscaled: 0.0294 (0.0276)  loss_giou_4_unscaled: 0.0759 (0.0714)  cardinality_error_4_unscaled: 57.2500 (56.7778)  time: 0.4141  data: 0.0740  max mem: 1445
+Test: Total time: 0:00:03 (0.4197 s / it)
+Averaged stats: class_error: 0.00  loss: 6.4795 (6.5037)  loss_ce: 0.8051 (0.8034)  loss_bbox: 0.1479 (0.1398)  loss_giou: 0.1509 (0.1460)  loss_ce_0: 0.7483 (0.7361)  loss_bbox_0: 0.1710 (0.1604)  loss_giou_0: 0.1779 (0.1684)  loss_ce_1: 0.8124 (0.7956)  loss_bbox_1: 0.1453 (0.1439)  loss_giou_1: 0.1517 (0.1484)  loss_ce_2: 0.8113 (0.8040)  loss_bbox_2: 0.1287 (0.1404)  loss_giou_2: 0.1498 (0.1444)  loss_ce_3: 0.7977 (0.7964)  loss_bbox_3: 0.1477 (0.1395)  loss_giou_3: 0.1500 (0.1422)  loss_ce_4: 0.8160 (0.8143)  loss_bbox_4: 0.1471 (0.1379)  loss_giou_4: 0.1517 (0.1427)  loss_ce_unscaled: 0.8051 (0.8034)  class_error_unscaled: 0.0000 (0.0000)  loss_bbox_unscaled: 0.0296 (0.0280)  loss_giou_unscaled: 0.0755 (0.0730)  cardinality_error_unscaled: 56.7500 (55.1389)  loss_ce_0_unscaled: 0.7483 (0.7361)  loss_bbox_0_unscaled: 0.0342 (0.0321)  loss_giou_0_unscaled: 0.0889 (0.0842)  cardinality_error_0_unscaled: 46.7500 (47.5000)  loss_ce_1_unscaled: 0.8124 (0.7956)  loss_bbox_1_unscaled: 0.0291 (0.0288)  loss_giou_1_unscaled: 0.0758 (0.0742)  cardinality_error_1_unscaled: 53.7500 (55.0556)  loss_ce_2_unscaled: 0.8113 (0.8040)  loss_bbox_2_unscaled: 0.0257 (0.0281)  loss_giou_2_unscaled: 0.0749 (0.0722)  cardinality_error_2_unscaled: 56.5000 (56.2500)  loss_ce_3_unscaled: 0.7977 (0.7964)  loss_bbox_3_unscaled: 0.0295 (0.0279)  loss_giou_3_unscaled: 0.0750 (0.0711)  cardinality_error_3_unscaled: 56.7500 (55.2500)  loss_ce_4_unscaled: 0.8160 (0.8143)  loss_bbox_4_unscaled: 0.0294 (0.0276)  loss_giou_4_unscaled: 0.0759 (0.0714)  cardinality_error_4_unscaled: 57.2500 (56.7778)
+Accumulating evaluation results...
+DONE (t=0.03s).
+IoU metric: bbox
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.525
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.613
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.602
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.196
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.754
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.334
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.784
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.903
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.756
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.922
+Training time 0:00:31
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Plot-logs">
+<h2>Plot logs<a class="headerlink" href="#Plot-logs" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">detr_plot_utils</span><span class="o">.</span><span class="n">plot_logs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+plot_utils.py::plot_logs info: logs param expects a list argument, converted to list[Path].
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/local/lib/python3.6/dist-packages/mantisshrimp/hub/detr/detr/util/plot_utils.py:55: FutureWarning: The pandas.np module is deprecated and will be removed from pandas in a future version. Import numpy directly instead
+  coco_eval = pd.DataFrame(pd.np.stack(col.dropna().values)[:, 1]).ewm(com=ewm_col).mean()
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_hub_detr_finetune_pennfundan_38_2.png" src="../_images/tutorials_hub_detr_finetune_pennfundan_38_2.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"07abab309c3544678b681ed90e9ab325": {"model_module": "@jupyter-widgets/controls", "model_name": "HTMLModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HTMLView", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_68407a7bf9274dd986b3da6d8f6ef9a4", "placeholder": "\u200b", "style": "IPY_MODEL_9c582d52b73840a29b49c022339aa4c1", "value": " 97.8M/97.8M [00:00&lt;00:00, 109MB/s]"}}, "09ba2259202440cd8921633191716dab": {"model_module": "@jupyter-widgets/controls", "model_name": "HBoxModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_7972d22ec6564af3b0214c664dc46e57", "IPY_MODEL_07abab309c3544678b681ed90e9ab325"], "layout": "IPY_MODEL_bedd3107632542848bd2721344958545"}}, "0d29427b2a134604ae603f44c44b56de": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "0d62f5fd4e344d858dac61bf4fc02ea5": {"model_module": "@jupyter-widgets/controls", "model_name": "FloatProgressModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ProgressView", "bar_style": "", "description": "100%", "description_tooltip": null, "layout": "IPY_MODEL_5888d9dca028449badeeab71001ebc4f", "max": 53723336, "min": 0, "orientation": "horizontal", "style": "IPY_MODEL_782683a00fc14e15ba43291197418b73", "value": 53723336}}, "38bd992c9c6849d0b879bb410b729206": {"model_module": "@jupyter-widgets/controls", "model_name": "ProgressStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "bar_color": null, "description_width": "initial"}}, "425baacd9da347c880c5423a2b4ffe8e": {"model_module": "@jupyter-widgets/controls", "model_name": "HBoxModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_fb9ce6905ae346aa9117343267f79586", "IPY_MODEL_50bb730e7aa440fa933f3606358785db"], "layout": "IPY_MODEL_9bacb8f5f6f241d5b5bc6a95aedb187e"}}, "473a88d051cf4bf19a89f8cedb4dbd06": {"model_module": "@jupyter-widgets/controls", "model_name": "DescriptionStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "DescriptionStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": ""}}, "50bb730e7aa440fa933f3606358785db": {"model_module": "@jupyter-widgets/controls", "model_name": "HTMLModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HTMLView", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_8ca9a27bf6604a18bac882d8d33481f2", "placeholder": "\u200b", "style": "IPY_MODEL_dd4b761ae9814d6b9b2bbde79a2f63ac", "value": " 34/34 [00:15&lt;00:00,  2.22it/s]"}}, "512ff0b5bc9c41e581149969fc353313": {"model_module": "@jupyter-widgets/controls", "model_name": "HBoxModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_6fbe33b6bbe24949b9128919ffca97fb", "IPY_MODEL_de3eaef947ff477697a6d4bf0d36859f"], "layout": "IPY_MODEL_7fc77ac6c8b64deaacb258689a1a1e34"}}, "5888d9dca028449badeeab71001ebc4f": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "682384ea4cc24c26bf55d300562505d1": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "68407a7bf9274dd986b3da6d8f6ef9a4": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "690d9bc62bba4ad2ba06e365b3f72038": {"model_module": "@jupyter-widgets/controls", "model_name": "DescriptionStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "DescriptionStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": ""}}, "6fbe33b6bbe24949b9128919ffca97fb": {"model_module": "@jupyter-widgets/controls", "model_name": "FloatProgressModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ProgressView", "bar_style": "success", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_682384ea4cc24c26bf55d300562505d1", "max": 1, "min": 0, "orientation": "horizontal", "style": "IPY_MODEL_38bd992c9c6849d0b879bb410b729206", "value": 1}}, "71b64857495343ccb1c456d043096e76": {"model_module": "@jupyter-widgets/controls", "model_name": "HTMLModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HTMLView", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_d14fdfe838d84cc3bd56a42dc2d922bc", "placeholder": "\u200b", "style": "IPY_MODEL_690d9bc62bba4ad2ba06e365b3f72038", "value": " 53723336/53723336 [01:00&lt;00:00, 1018964.22B/s]"}}, "782683a00fc14e15ba43291197418b73": {"model_module": "@jupyter-widgets/controls", "model_name": "ProgressStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "bar_color": null, "description_width": "initial"}}, "7972d22ec6564af3b0214c664dc46e57": {"model_module": "@jupyter-widgets/controls", "model_name": "FloatProgressModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ProgressView", "bar_style": "success", "description": "100%", "description_tooltip": null, "layout": "IPY_MODEL_7ddc1f0b178e44478200744c4e3b4991", "max": 102502400, "min": 0, "orientation": "horizontal", "style": "IPY_MODEL_aea05129b0f340b3835bb4d85699baac", "value": 102502400}}, "7ddc1f0b178e44478200744c4e3b4991": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "7fc77ac6c8b64deaacb258689a1a1e34": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "8ca9a27bf6604a18bac882d8d33481f2": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "8e951641a4164d6abff5f1ef3a22ec3f": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "9bacb8f5f6f241d5b5bc6a95aedb187e": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "9c582d52b73840a29b49c022339aa4c1": {"model_module": "@jupyter-widgets/controls", "model_name": "DescriptionStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "DescriptionStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": ""}}, "9f4d397131f74fc2af1b70db421539dc": {"model_module": "@jupyter-widgets/controls", "model_name": "HBoxModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_0d62f5fd4e344d858dac61bf4fc02ea5", "IPY_MODEL_71b64857495343ccb1c456d043096e76"], "layout": "IPY_MODEL_8e951641a4164d6abff5f1ef3a22ec3f"}}, "aea05129b0f340b3835bb4d85699baac": {"model_module": "@jupyter-widgets/controls", "model_name": "ProgressStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "bar_color": null, "description_width": "initial"}}, "ba9ae4d6051a49188e8dcfce7cc21d02": {"model_module": "@jupyter-widgets/controls", "model_name": "ProgressStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "bar_color": null, "description_width": "initial"}}, "bedd3107632542848bd2721344958545": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "d14fdfe838d84cc3bd56a42dc2d922bc": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "dd4b761ae9814d6b9b2bbde79a2f63ac": {"model_module": "@jupyter-widgets/controls", "model_name": "DescriptionStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "DescriptionStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": ""}}, "de3eaef947ff477697a6d4bf0d36859f": {"model_module": "@jupyter-widgets/controls", "model_name": "HTMLModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HTMLView", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_e212247c1b5e46e4add6b61c5887c75c", "placeholder": "\u200b", "style": "IPY_MODEL_473a88d051cf4bf19a89f8cedb4dbd06", "value": " 170/? [00:03&lt;00:00, 54.17it/s]"}}, "e212247c1b5e46e4add6b61c5887c75c": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "fb9ce6905ae346aa9117343267f79586": {"model_module": "@jupyter-widgets/controls", "model_name": "FloatProgressModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ProgressView", "bar_style": "success", "description": "100%", "description_tooltip": null, "layout": "IPY_MODEL_0d29427b2a134604ae603f44c44b56de", "max": 34, "min": 0, "orientation": "horizontal", "style": "IPY_MODEL_ba9ae4d6051a49188e8dcfce7cc21d02", "value": 34}}}
+</script></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="parser.html" class="btn btn-neutral float-right" title="Parser" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../faqs.html" class="btn btn-neutral float-left" title="FAQs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Lucas Goulart Vazquez
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
